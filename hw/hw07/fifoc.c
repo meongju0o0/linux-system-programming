@@ -44,10 +44,10 @@ int main() {
 
 	strcpy(msg.returnFifo, fname); // msg.returnFifo에 .fifo{getpid()} 복사
 	sprintf(msg.data, "This is a request from %d.", getpid()); // msg.data에 문자열 복사
-	write(sfd, (char *)&msg, sizeof(msg)); // 서버에 메시지 전송
+	write(sfd, &msg, sizeof(msg)); // 서버에 메시지 전송
 	printf("Sent a request..."); // 콘솔에 메시지를 서버에 전송했다는 것을 출력
 
-	if((n = read(fd, (char *)&msg, sizeof(msg))) < 0) { // 서버로부터의 메시지를 읽음
+	if((n = read(fd, &msg, sizeof(msg))) < 0) { // 서버로부터의 메시지를 읽음
 		perror("read"); // 메시지 읽기에 실패한 경우 에러 메시지 출력
 		exit(1); // 비정상 종료
 	}

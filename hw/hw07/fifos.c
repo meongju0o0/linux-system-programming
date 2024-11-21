@@ -39,12 +39,14 @@ void sig_int_handler(int signum) {
 	[Calls]:
 		- remove(const char *pathname)
 	*/
-	if(remove(SERV_FIFO) < 0) { // SERV_FIFO 파일 삭제
-		perror("remove"); // 삭제 실패 시 에러 메시지 출력
-		exit(1); // 비정상 종료
-	}
+	// if(remove(SERV_FIFO) < 0) { // SERV_FIFO 파일 삭제
+	//	perror("remove"); // 삭제 실패 시 에러 메시지 출력
+	//	exit(1); // 비정상 종료
+	//}
+	errno = 4;
+	printf("Received SIGINT signal\n");
 
-	exit(0); // 프로세스 종료
+	// exit(0); // 프로세스 종료
 }
 
 int main() {
@@ -73,8 +75,9 @@ int main() {
 	}
 
 	while(TRUE) { // 반복적으로 클라이언트의 요청 처리
-		if((n = read(fd, (char *)&msg, sizeof(msg))) < 0) { // 메시지 읽기
+		if((n = read(fd, &msg, sizeof(msg))) < 0) { // 메시지 읽기
 			if(errno == EINTR) { // 읽기 작업이 SIGINT 등의 시그널로 종료된 경우
+				printf("EINTR");
 				continue; // 반복문의 시작으로 이동
 			}
 			else {
@@ -82,14 +85,14 @@ int main() {
 				exit(1); // 비정상 종료
 			}
 		}
-		printf("Received request: %s.....", msg.data); // 메시지("This is a request from {getpid()}")를 콘솔에 출력
-
+		printf("Received request: %s.....\n", msg.data); // 메시지("This is a request from {getpid()}")를 콘솔에 출력
+		printf("errno: %d\n", errno);
 		if((cfd = open(msg.returnFifo, O_WRONLY)) < 0) { // 클라이언트에서 생성한 .fifo{getpid()} 파일 열기
 			perror("open"); // 파일 열기에 실패한 경우 에러 메시지 출력
 			exit(1); // 비정상 종료
 		}
 		sprintf(msg.data, "This is a reply from %d.", getpid()); // 클라이언트로 보낼 메시지를 msg.data에 복사
-		write(cfd, (char *)&msg, sizeof(msg)); // 생성된 응답 메시지를 클라이언트의 FIFO로 씀
+		write(cfd, &msg, sizeof(msg)); // 생성된 응답 메시지를 클라이언트의 FIFO로 씀
 		close(cfd); // 클라이언트의 FIFO 파일 닫기
 		printf("Replied.\n"); // 응답을 완료했음을 콘솔에 출력
 	}
