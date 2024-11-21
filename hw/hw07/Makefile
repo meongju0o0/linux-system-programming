@@ -6,7 +6,7 @@ LDFLAGS =
 .c.o:
 	$(CC) -c $(CFLAGS) $<
 
-ALL = pipe pipe2 deadlock_pipe sync mymore fifos fifoc shm sipc1 sipc2 mycp3 mipc
+ALL = pipe pipe2 deadlock_pipe sync mymore fifos fifoc shm sipc1 sipc2 mycp3 mipc mipc2
 
 all: $(ALL)
 
@@ -44,6 +44,9 @@ mycp3: mycp3.o
 	$(CC) -o $@ $< $(LDFLAGS)
 
 mipc: mipc.o synclib.o
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+mipc2: mipc2.o synclib.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
