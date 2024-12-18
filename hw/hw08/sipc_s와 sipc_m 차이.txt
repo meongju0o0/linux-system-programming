@@ -1,0 +1,45 @@
+# 1. mutex와 condition variable을 사용한 sipc
+
+mutex와 condition variable을 사용하는 프로그램(sipc_m)은 두 스레드 간의 동기화를 통해 데이터를 공유하는 구조이다
+
+## 특징
+
+- Mutex: 공유 데이터를 보호
+- Condition Variable: 특정 조건을 기다리거나, 조건을 만족했음을 알리는데 사용
+- Req와 Rep이라는 두 개의 condition variable을 사용해 요청과 응답의 순서를 관리
+
+## 주요 흐름
+
+- sipc1
+	- Req 조건 변수를 대기
+	- 요청을 처리하고 응답 데이터를 작성
+	- Rep 조건 변수를 신호로 응답이 준비되었음을 알림
+
+- sipc2
+	- 공유 데이터를 작성하고 Req 조건 변수에 신호를 보냄
+	- Rep 조건 변수를 대기
+	- 응답 데이터를 읽음
+
+
+# 2. semaphore를 사용한 sipc
+
+semaphore를 사용하는 프로그램(sipc_s)은 비슷한 동작을 하지만, 동기화 도구로 semaphore를 활용한다
+
+## 특징
+
+- Semaphore: 특정 값(카운터)을 기준으로 동기화 상태를 관리
+- 세 개의 세마포어(ReqSem, RepSem, MutexSem)를 사용
+	- MutexSem: 공유 데이터 접근을 제어하는 세마포어
+	- ReqSem과 RepSem: 요청과 응답의 순서를 관리하는 세마포어
+
+## 주요 흐름
+
+- sipc1
+	- ReqSem 세마포어를 대기하여 요청을 확인
+	- 공유 데이터를 읽고 응답 데이터를 작성
+	- RepSem 세마포어를 증가시켜 응답이 준비되었음을 알림
+
+- sipc2
+	- 공유 데이터 작성 전에 MutexSem 세마포어를 대기하여 보호
+	- 데이터 작성 후 ReqSem 세마포어를 증가시켜 요청을 보냄
+	- RepSem 세마포어를 대기하여 응답을 확인
