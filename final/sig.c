@@ -27,7 +27,7 @@ int main() {
 	else {
 		while(1) {
 			sleep(1);
-			kill(0, SIGUSR1);
+			kill(pid, SIGUSR1);
 		}
 	}
 
