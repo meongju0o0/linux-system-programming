@@ -14,12 +14,10 @@ void sigchld_handler(int signum) {
 }
 
 int main() {
-	pid_t pid;
-
 	signal(SIGUSR1, sigusr_handler);
 	signal(SIGCHLD, sigchld_handler);
 
-	pid = fork();
+	pid_t pid = fork();
 
 	if (pid == 0) {
 		while(1) count++;
